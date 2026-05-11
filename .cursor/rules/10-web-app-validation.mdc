@@ -1,0 +1,46 @@
+---
+description: TypeScript/React 앱 소스, React Query, 스타일, package 메타데이터, 빌드 검증 게이트를 수정할 때 적용.
+globs:
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.css"
+  - "package.json"
+  - "package-lock.json"
+  - "tsconfig.json"
+  - "vite.config.*"
+  - "index.html"
+  - "scripts/validate.py"
+  - "scripts/validate_web_app.py"
+alwaysApply: false
+---
+
+# 웹 앱 검증 규칙
+
+TypeScript·React·TanStack Query 기반 웹 앱 구현 또는 빌드 설정 수정 시 적용한다.
+
+## 스택 기준
+
+- 언어: TypeScript
+- UI: React
+- 데이터 계층: `@tanstack/react-query`
+- 의존성 관리: `package.json`
+- 검증 진입점: `python scripts/validate.py --web-app` (또는 `python scripts/validate_web_app.py`)
+
+## 구현 기준
+
+- 비동기 데이터는 `useQuery` / `useMutation` 또는 동등한 QueryClient 패턴으로 일관되게 다룬다.
+- 앱 루트에서 `QueryClient`와 `QueryClientProvider`를 구성한다.
+- 타입 정의는 공용 타입·API 응답 타입 등에 재사용 가능하게 둔다.
+- 화면 구성과 도메인 기능은 작업 프롬프트에 명시된 요구사항을 따른다.
+- 런타임에서 외부 CDN을 사용하지 않는다.
+- 빌드 결과물, `node_modules`, 캐시 파일은 커밋 대상으로 만들지 않는다.
+
+## 검증
+
+변경 후 반드시 다음을 실행한다. 의존성 설치와 프로덕션 빌드를 한 번에 수행한다.
+
+```bash
+python scripts/validate.py --web-app
+```
+
+실패하면 실패 로그를 요약하고 다음 retry 작업에 들어갈 수정 방향을 작성한다.

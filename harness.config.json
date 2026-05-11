@@ -1,0 +1,12 @@
+{
+  "agent_command": "agent",
+  "workspace_relative": ".",
+  "trust_workspace": true,
+  "headless_model": "",
+  "headless_extra_args": [],
+  "web_app_validate": false,
+  "max_rounds": 3,
+  "initial_prompt_file": "prompts/01-create-react-query-webapp.md",
+  "repair_prompt_file": "prompts/02-repair-from-validation-log.md",
+  "prompt_out_dir": ".harness/out"
+}

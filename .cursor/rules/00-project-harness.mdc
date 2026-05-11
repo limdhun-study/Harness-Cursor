@@ -1,0 +1,31 @@
+---
+description: Cursor CLI 헤드리스 루프와 로컬 검증을 아우르는 프로젝트 전역 하네스 규칙.
+alwaysApply: true
+---
+
+# 프로젝트 하네스 규칙
+
+이 프로젝트는 **Harness Engineering** 예로, **Cursor Agent CLI** 헤드리스 실행과 **`python scripts/validate.py`** 를 함께 쓴다.
+
+## 기본
+
+- 모든 작업은 **이 저장소 안**에만 수행한다.
+- 실질적인 수정 전에 루트 **`README.md`**, **`AGENTS.md`**, **`docs/forAgents/harness-policy.md`** 를 확인한다.
+- 구현 변경 후 **`python scripts/validate.py`** 를 실행한다. 웹 앱 본문을 다루면 **`python scripts/validate.py --web-app`** 까지 통과해야 한다.
+- 검증 실패 시 로그를 요약하고 **다음에 할 일**을 구체적으로 적는다. 무한 자체 재시도를 약속하지 않는다. 라운드 상한은 **`scripts/harness_cli_loop.py`** 와 설정이 맡는다.
+- 웹 UI 세부 요구는 **작업 프롬프트**(예: `prompts/`)에 두며, 이 규칙 파일에 중복하지 않는다.
+
+## 금지
+
+- 저장소 밖 파일 수정
+- 웹 앱 런타임에서 외부 CDN 의존
+- 필수 검증 없이 완료라고 말하기
+- 소스·문서에 실제 비밀값·토큰·API 키 기록
+- 모델에게 “성공할 때까지 무한 재시도”만 지시하기
+
+## 완료 보고
+
+1. 변경 파일 목록  
+2. 실행한 검증 명령  
+3. PASS 또는 FAIL  
+4. FAIL이면 원인과 다음 하네스 라운드용 수정안
