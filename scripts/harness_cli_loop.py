@@ -155,6 +155,44 @@ def _run_validate(web_app: bool) -> tuple[int, str]:
     return proc.returncode, out
 
 
+def _abbreviate_prompt_in_log(cfg: dict) -> bool:
+    """harness.config.json 의 abbreviate_prompt_in_log; 기본 True(기존 축약 동작)."""
+    v = cfg.get("abbreviate_prompt_in_log", True)
+    if v is None:
+        return True
+    if isinstance(v, bool):
+        return v
+    if isinstance(v, str):
+        return v.strip().lower() not in ("0", "false", "no", "off")
+    return bool(v)
+
+
+def _print_agent_console_log(
+    cmd: list[str],
+    prompt: str,
+    *,
+    dry_run: bool,
+    abbreviate: bool,
+) -> None:
+    """agent 호출 직전 콘솔 안내. abbreviate 가 False 이면 프롬프트 전체를 이어서 출력한다."""
+    prefix = cmd[:-1]
+    line = " ".join(str(a) for a in prefix)
+    if abbreviate:
+        if dry_run:
+            print("[드라이런] 실행 예정:\n  " + line + " '<프롬프트 …>'", flush=True)
+        else:
+            print("+ " + line + " '<프롬프트 …>'", flush=True)
+        return
+    if dry_run:
+        print("[드라이런] 실행 예정:\n  " + line, flush=True)
+    else:
+        print("+ " + line, flush=True)
+    print("(abbreviate_prompt_in_log: false) 전달 프롬프트 전체:", flush=True)
+    print("---", flush=True)
+    print(prompt, flush=True)
+    print("---", flush=True)
+
+
 def _run_agent(prompt: str, cfg: dict, dry_run: bool) -> int:
     agent_bin = cfg.get("agent_command") or "agent"
     agent_path = _resolve_agent_path(agent_bin)
@@ -176,10 +214,11 @@ def _run_agent(prompt: str, cfg: dict, dry_run: bool) -> int:
         agent_args.append(str(arg))
     agent_args.append(prompt)
     cmd = _agent_spawn_argv(agent_path or agent_bin, agent_args) if agent_path else [agent_bin, *agent_args]
+    abbreviate = _abbreviate_prompt_in_log(cfg)
     if dry_run:
-        print("[드라이런] 실행 예정:\n  " + " ".join(cmd[:-1]) + " '<프롬프트 …>'")
+        _print_agent_console_log(cmd, prompt, dry_run=True, abbreviate=abbreviate)
         return 0
-    print("+ " + " ".join(cmd[:-1]) + " '<프롬프트 …>'", flush=True)
+    _print_agent_console_log(cmd, prompt, dry_run=False, abbreviate=abbreviate)
     proc = subprocess.run(cmd, cwd=ROOT)
     return proc.returncode
 
